@@ -5,14 +5,18 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Display
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ahmetkanat.catapp.R
 import com.ahmetkanat.catapp.adapter.CatAdapter
 import com.ahmetkanat.catapp.databinding.ActivityMainBinding
+import com.ahmetkanat.catapp.databinding.CardTasarimBinding
 
 
 import com.ahmetkanat.catapp.model.Cat
@@ -24,8 +28,9 @@ import io.reactivex.schedulers.Schedulers
 import java.util.*
 import kotlin.collections.ArrayList
 //MutableLiveData<List<Cat>>()
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CatAdapter.Listener {
     private lateinit var binding : ActivityMainBinding
+    private lateinit var binding2 : CardTasarimBinding
     private lateinit var adapter : CatAdapter
     private val apiUtils = APIUtils()
     private val compositeDisposable = CompositeDisposable()
@@ -36,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        binding2 = CardTasarimBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         getCat()
@@ -78,7 +84,6 @@ class MainActivity : AppCompatActivity() {
                         binding.rv.adapter!!.notifyDataSetChanged()
                     }
 
-
                     return true
                 }
 
@@ -87,12 +92,6 @@ class MainActivity : AppCompatActivity() {
 
         return super.onCreateOptionsMenu(menu)
     }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return super.onOptionsItemSelected(item)
-    }
-
-
 
     private fun getCat(){
 
@@ -105,7 +104,7 @@ class MainActivity : AppCompatActivity() {
                         catList = t as ArrayList<Cat>
                         displayList.addAll(catList)
                         binding.rv.layoutManager = LinearLayoutManager(this@MainActivity)
-                        adapter = CatAdapter(this@MainActivity,displayList)
+                        adapter = CatAdapter(this@MainActivity,displayList,this@MainActivity)
                         binding.rv.adapter=adapter
                         binding.rv.setHasFixedSize(true)
                     }
@@ -118,6 +117,10 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-
+    override fun onItemCardClick(cat: Cat) {
+        val intent = Intent(this, DetayActivity::class.java)
+        intent.putExtra("detay",cat)
+        startActivity(intent)
+    }
 
 }

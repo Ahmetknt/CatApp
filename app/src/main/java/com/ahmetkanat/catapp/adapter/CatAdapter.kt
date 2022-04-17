@@ -1,24 +1,30 @@
 package com.ahmetkanat.catapp.adapter
 
 import android.content.Context
-import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import com.ahmetkanat.catapp.R
-import com.ahmetkanat.catapp.view.DetayActivity
 import com.ahmetkanat.catapp.databinding.CardTasarimBinding
 import com.ahmetkanat.catapp.model.Cat
 import com.squareup.picasso.Picasso
+import java.util.*
 
 
-class CatAdapter(private val context : Context,private val catList : List<Cat>) : RecyclerView.Adapter<CatAdapter.CatHolder>() {
+class CatAdapter(private val context : Context,private val catList : List<Cat>,private val listener : Listener) : RecyclerView.Adapter<CatAdapter.CatHolder>() {
+
+    interface Listener{
+        fun onItemCardClick(cat : Cat)
+    }
 
     inner class CatHolder(val cardTasarimBinding: CardTasarimBinding) : RecyclerView.ViewHolder(cardTasarimBinding.root){
+        fun bind(cat: Cat, listener: Listener){
+
+            cardTasarimBinding.cardView.setOnClickListener {
+                listener.onItemCardClick(cat)
+            }
+        }
 
 
     }
@@ -33,18 +39,13 @@ class CatAdapter(private val context : Context,private val catList : List<Cat>) 
 
     override fun onBindViewHolder(holder: CatHolder, position: Int) {
         val cat = catList[position]
-
         val url = cat.image.url
 
         holder.cardTasarimBinding.apply {
             nameText.text = cat.name
             Picasso.get().load(url).into(imageView)
         }
-        holder.cardTasarimBinding.cardView.setOnClickListener {
-            val intent = Intent(context, DetayActivity::class.java)
-            intent.putExtra("detay",cat)
-            context.startActivity(intent)
-        }
+        holder.bind(cat,listener)
 
         //bu kontrol boolean ile de sağlanabilirdi fakat card yapısı olduğu için boolean yapısı olmadı favorilere ekleme çıkarmaya böyle bir çözüm buldum.
         var display = R.drawable.star_off
